@@ -12,6 +12,7 @@ export class MyRoom extends Room<MyRoomState> {
             console.log("update received -> ");
             console.debug(JSON.stringify(data));
             const player = this.state.players.get(client.sessionId);
+            if (!player) return;
             player.x = data["x"];
             player.y = data['y'];
             player.z = data["z"];
@@ -25,6 +26,7 @@ export class MyRoom extends Room<MyRoomState> {
             console.log("update received -> ");
             console.debug(JSON.stringify(data));
             const player = this.state.players.get(client.sessionId);
+            if (!player) return;
             player.animstate = data['animstate']
             player.iduser = client.sessionId
         });
@@ -33,6 +35,7 @@ export class MyRoom extends Room<MyRoomState> {
             console.log("update received -> ");
             console.debug(JSON.stringify(data));
             const player = this.state.players.get(client.sessionId);
+            if (!player) return;
             player.name = data['name']
         });
 
@@ -40,6 +43,7 @@ export class MyRoom extends Room<MyRoomState> {
             console.log("update character -> ");
             console.debug(JSON.stringify(data));
             const player = this.state.players.get(client.sessionId);
+            if (!player) return;
             player.base = data['base']
             player.head = data['head']
             player.body = data['body']
@@ -52,6 +56,19 @@ export class MyRoom extends Room<MyRoomState> {
 
         // create Player instance
         const player = new Player();
+        player.x = 0;
+        player.y = 0;
+        player.z = 0;
+        player.rx = 0;
+        player.ry = 0;
+        player.rz = 0;
+        player.iduser = client.sessionId;
+        player.name = options.name || "Guest";
+        player.animstate = "idle";
+        player.base = "Female";
+        player.head = "HeadFemaleBase";
+        player.body = "BodyFemaleBase";
+        player.pants = "PantsFemaleBase";
 
         // // place Player at a random position in the floor
         // const FLOOR_SIZE = 500;
