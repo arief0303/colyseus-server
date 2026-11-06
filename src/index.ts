@@ -1,15 +1,29 @@
-/**
- * IMPORTANT:
- * ---------
- * Do not manually edit this file if you'd like to use Colyseus Arena
- *
- * If you're self-hosting (without Arena), you can manually instantiate a
- * Colyseus Server as documented here: 👉 https://docs.colyseus.io/server/api/#constructor-options
- */
-import { listen } from "@colyseus/arena";
+import { createServer } from "http";
+import express from "express";
+import { Colyseus15Server } from "./colyseus15";
+import { WebSocketTransport } from "@colyseus/ws-transport";
+import { MyRoom } from "./rooms/MyRoom";
 
-// Import arena config
-import arenaConfig from "./arena.config";
+const app = express();
+app.disable("x-powered-by");
+app.get(["/", "/health"], (_req, res) => {
+    res.json({ status: "ok", service: "bitaverse-multiplayer", host: "artificer" });
+});
+// No public Colyseus monitor: it can inspect and disconnect players.
+const gameServer = new Colyseus15Server({
+    transport: new WebSocketTransport({
+        server: createServer(app),
+        maxPayload: 4096,
+        perMessageDeflate: false,
+    }),
+});
+// Separate room types prevent avatars and coordinates leaking across maps.
+gameServer.define("my_room", MyRoom);
+gameServer.define("landmark_room", MyRoom);
 
-// Create and listen on 2567 (or PORT environment variable.)
-listen(arenaConfig);
+gameServer.listen(Number(process.env.PORT || 2567), process.env.HOST || "127.0.0.1")
+    .then(() => console.log("Bitaverse multiplayer ready"))
+    .catch(error => {
+        console.error("Bitaverse startup failed", error);
+        process.exit(1);
+    });

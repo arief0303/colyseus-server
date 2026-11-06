@@ -1,0 +1,27 @@
+services:
+  bitaverse:
+    build: .
+    container_name: bitaverse-multiplayer
+    init: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:2567:2567"
+    mem_limit: 384m
+    cpus: 0.5
+    pids_limit: 100
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "2567"
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
